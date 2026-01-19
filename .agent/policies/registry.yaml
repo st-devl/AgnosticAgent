@@ -1,0 +1,50 @@
+# Policy Registry
+# Tracks active/deprecated policies and their enforcers
+# Token cost: ~0 (not loaded into prompt)
+
+version: "1.0.0"
+
+policies:
+  quality:
+    status: active
+    file: quality.yaml
+    enforcers:
+      - complexity_checker.py
+      - duplicate_detector.py
+    triggers:
+      - workflow: /plan
+      - workflow: /start
+      - event: pre_commit
+
+  security:
+    status: active
+    file: security.yaml
+    enforcers:
+      - secret_scanner.py
+      - gatekeeper_check.py
+    triggers:
+      - event: pre_write
+      - workflow: /security_audit
+
+  roadmap:
+    status: active
+    file: roadmap.yaml
+    enforcers:
+      - drift_detector.py
+      - memory_controller.py
+    triggers:
+      - workflow: /plan
+      - workflow: /start
+      - event: checkpoint
+
+  ssot:
+    status: active
+    file: null  # Built into rules.yaml
+    enforcers:
+      - ssot_validator.py
+    triggers:
+      - workflow: /ultrathink
+      - event: manual
+
+# Deprecated policies (for history)
+deprecated: []

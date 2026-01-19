@@ -1,0 +1,152 @@
+{
+  "_comment": "Bu dosya ÖRNEK amaçlıdır. Auth gerektiren işlemler için standart.",
+  
+  "operation": "login",
+  "version": "1.0.0",
+  "description": "Kullanıcı girişi yapar ve auth token döner",
+  
+  "input": {
+    "fields": [
+      {
+        "name": "email",
+        "type": "string",
+        "required": true,
+        "validation": {
+          "rules": {
+            "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+          },
+          "error_message": "Geçerli bir email adresi giriniz"
+        },
+        "description": "Kullanıcı email adresi",
+        "example": "user@example.com"
+      },
+      {
+        "name": "password",
+        "type": "string",
+        "required": true,
+        "validation": {
+          "rules": {
+            "min_length": 8,
+            "max_length": 128
+          },
+          "error_message": "Şifre 8-128 karakter arası olmalıdır"
+        },
+        "description": "Kullanıcı şifresi",
+        "example": "SecurePassword123!",
+        "_security_note": "Şifre asla log'lanmamalı veya response'da dönmemelidir"
+      },
+      {
+        "name": "remember_me",
+        "type": "boolean",
+        "required": false,
+        "validation": {
+          "rules": {}
+        },
+        "description": "Oturumu hatırla",
+        "example": true,
+        "default": false
+      }
+    ]
+  },
+  
+  "output": {
+    "success": {
+      "type": "object",
+      "description": "Başarılı giriş yanıtı",
+      "schema": {
+        "user": {
+          "id": "string - Kullanıcı ID'si",
+          "email": "string - Kullanıcı email",
+          "name": "string - Kullanıcı adı",
+          "role": "string - Kullanıcı rolü"
+        },
+        "tokens": {
+          "access_token": "string - Erişim token'ı (kısa ömürlü)",
+          "refresh_token": "string - Yenileme token'ı (uzun ömürlü)",
+          "token_type": "string - Token tipi (Bearer)",
+          "expires_in": "number - Access token süresi (saniye)"
+        },
+        "permissions": "array - Kullanıcı yetkileri"
+      },
+      "example": {
+        "user": {
+          "id": "user_abc123xyz",
+          "email": "user@example.com",
+          "name": "John Doe",
+          "role": "admin"
+        },
+        "tokens": {
+          "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+          "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+          "token_type": "Bearer",
+          "expires_in": 3600
+        },
+        "permissions": ["resource:create", "resource:read", "resource:update"]
+      }
+    },
+    "errors": {
+      "validation": {
+        "code": "VALIDATION_ERROR",
+        "http_status": 400,
+        "description": "Input validasyon hatası"
+      },
+      "auth": {
+        "code": "AUTH_CREDENTIALS_INVALID",
+        "http_status": 401,
+        "description": "Geçersiz kullanıcı adı veya şifre",
+        "example": {
+          "error": {
+            "code": "AUTH_CREDENTIALS_INVALID",
+            "message": "Email veya şifre hatalı",
+            "field_errors": [],
+            "metadata": {
+              "request_id": "req_123",
+              "timestamp": "2026-01-18T12:00:00Z"
+            }
+          }
+        }
+      },
+      "business": {
+        "code": "BUSINESS_ACCOUNT_LOCKED",
+        "http_status": 422,
+        "description": "Hesap kilitli (çok fazla başarısız deneme)",
+        "example": {
+          "error": {
+            "code": "BUSINESS_ACCOUNT_LOCKED",
+            "message": "Hesabınız geçici olarak kilitlendi. 15 dakika sonra tekrar deneyin.",
+            "field_errors": [],
+            "metadata": {
+              "request_id": "req_124",
+              "timestamp": "2026-01-18T12:00:00Z",
+              "unlock_at": "2026-01-18T12:15:00Z"
+            }
+          }
+        }
+      }
+    }
+  },
+  
+  "metadata": {
+    "auth_required": false,
+    "permissions": [],
+    "rate_limit": "10/minute",
+    "idempotent": false,
+    "cacheable": false,
+    "http": {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "headers": {
+        "required": ["Content-Type"],
+        "optional": ["X-Request-ID"]
+      }
+    },
+    "_security_notes": [
+      "Rate limiting kritik (brute force saldırı önleme)",
+      "Başarısız denemeleri log'la",
+      "3-5 başarısız denemeden sonra CAPTCHA ekle",
+      "10 başarısız denemeden sonra hesabı geçici kilitle"
+    ]
+  },
+  
+  "_usage_note": "Auth işlemleri için bu standardı kullanın. Token yenileme (refresh) için ayrı endpoint oluşturun."
+}

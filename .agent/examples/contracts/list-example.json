@@ -1,0 +1,234 @@
+{
+  "_comment": "Bu dosya ÖRNEK amaçlıdır. Liste operasyonları için standart şablon.",
+  
+  "operation": "list_resources",
+  "version": "1.0.0",
+  "description": "Kaynakları listeler, filtreler ve sıralar (Generic List örneği)",
+  
+  "input": {
+    "fields": [
+      {
+        "name": "page",
+        "type": "number",
+        "required": false,
+        "validation": {
+          "rules": {
+            "min": 1,
+            "integer": true
+          },
+          "error_message": "Sayfa numarası 1'den büyük bir tam sayı olmalıdır"
+        },
+        "description": "Sayfa numarası",
+        "example": 1,
+        "default": 1
+      },
+      {
+        "name": "limit",
+        "type": "number",
+        "required": false,
+        "validation": {
+          "rules": {
+            "min": 1,
+            "max": 100,
+            "integer": true
+          },
+          "error_message": "Limit 1-100 arası bir tam sayı olmalıdır"
+        },
+        "description": "Sayfa başına öğe sayısı",
+        "example": 20,
+        "default": 20
+      },
+      {
+        "name": "sort_by",
+        "type": "string",
+        "required": false,
+        "validation": {
+          "rules": {
+            "enum": ["name", "created_at", "updated_at", "status"]
+          },
+          "error_message": "Geçerli bir sıralama alanı seçiniz"
+        },
+        "description": "Sıralama alanı",
+        "example": "created_at",
+        "default": "created_at"
+      },
+      {
+        "name": "sort_order",
+        "type": "string",
+        "required": false,
+        "validation": {
+          "rules": {
+            "enum": ["asc", "desc"]
+          },
+          "error_message": "Sıralama yönü 'asc' veya 'desc' olmalıdır"
+        },
+        "description": "Sıralama yönü",
+        "example": "desc",
+        "default": "desc"
+      },
+      {
+        "name": "filter_status",
+        "type": "string",
+        "required": false,
+        "validation": {
+          "rules": {
+            "enum": ["active", "inactive", "draft", "all"]
+          },
+          "error_message": "Geçerli bir durum filtresi seçiniz"
+        },
+        "description": "Duruma göre filtrele",
+        "example": "active"
+      },
+      {
+        "name": "filter_search",
+        "type": "string",
+        "required": false,
+        "validation": {
+          "rules": {
+            "max_length": 100
+          },
+          "error_message": "Arama terimi en fazla 100 karakter olabilir"
+        },
+        "description": "İsim veya açıklamada arama yap",
+        "example": "örnek"
+      },
+      {
+        "name": "filter_tags",
+        "type": "array",
+        "required": false,
+        "validation": {
+          "rules": {
+            "max_items": 5,
+            "item_type": "string"
+          },
+          "error_message": "En fazla 5 etiketle filtreleme yapılabilir"
+        },
+        "description": "Etiketlere göre filtrele",
+        "example": ["tag1", "tag2"]
+      }
+    ]
+  },
+  
+  "output": {
+    "success": {
+      "type": "object",
+      "schema": {
+        "data": {
+          "type": "array",
+          "description": "Kaynak listesi",
+          "items": {
+            "id": "string",
+            "name": "string",
+            "description": "string",
+            "status": "string",
+            "tags": "array",
+            "created_at": "string",
+            "updated_at": "string"
+          },
+          "example": [
+            {
+              "id": "resource_1",
+              "name": "Kaynak 1",
+              "description": "Açıklama 1",
+              "status": "active",
+              "tags": ["tag1"],
+              "created_at": "2026-01-18T10:00:00Z",
+              "updated_at": "2026-01-18T10:00:00Z"
+            },
+            {
+              "id": "resource_2",
+              "name": "Kaynak 2",
+              "description": "Açıklama 2",
+              "status": "draft",
+              "tags": ["tag2"],
+              "created_at": "2026-01-18T11:00:00Z",
+              "updated_at": "2026-01-18T11:00:00Z"
+            }
+          ]
+        },
+        "pagination": {
+          "type": "object",
+          "description": "Sayfalama bilgisi",
+          "schema": {
+            "total": {
+              "type": "number",
+              "description": "Toplam öğe sayısı",
+              "example": 42
+            },
+            "page": {
+              "type": "number",
+              "description": "Mevcut sayfa",
+              "example": 1
+            },
+            "limit": {
+              "type": "number",
+              "description": "Sayfa başına öğe",
+              "example": 20
+            },
+            "total_pages": {
+              "type": "number",
+              "description": "Toplam sayfa sayısı",
+              "example": 3
+            },
+            "has_next": {
+              "type": "boolean",
+              "description": "Sonraki sayfa var mı?",
+              "example": true
+            },
+            "has_prev": {
+              "type": "boolean",
+              "description": "Önceki sayfa var mı?",
+              "example": false
+            }
+          }
+        },
+        "meta": {
+          "type": "object",
+          "description": "Meta bilgi",
+          "schema": {
+            "applied_filters": {
+              "type": "object",
+              "description": "Uygulanan filtreler",
+              "example": {
+                "status": "active",
+                "search": "örnek"
+              }
+            },
+            "applied_sort": {
+              "type": "object",
+              "description": "Uygulanan sıralama",
+              "example": {
+                "by": "created_at",
+                "order": "desc"
+              }
+            }
+          }
+        }
+      },
+      "description": "Başarılı liste yanıtı"
+    },
+    "errors": {
+      "validation": "Bkz: .agent/rules/error-handling.md",
+      "auth": "Bkz: .agent/rules/error-handling.md"
+    }
+  },
+  
+  "metadata": {
+    "auth_required": true,
+    "permissions": ["resource:list"],
+    "rate_limit": "1000/hour",
+    "idempotent": true,
+    "cacheable": true,
+    "cache_duration": "60s",
+    "http": {
+      "method": "GET",
+      "path": "/api/v1/resources",
+      "headers": {
+        "required": ["Authorization"],
+        "optional": ["X-Request-ID"]
+      }
+    }
+  },
+  
+  "_usage_note": "Liste endpoint'leri için bu standardı kullanın. Filtreleme field'larını projenize göre uyarlayın."
+}
