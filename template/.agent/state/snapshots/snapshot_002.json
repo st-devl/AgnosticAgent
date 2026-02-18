@@ -1,0 +1,14 @@
+{
+  "id": 2,
+  "phase": "SSOT Decisions Locked",
+  "timestamp": "2026-01-17T12:18:11.807659+00:00",
+  "progress": {
+    "tasks": [],
+    "completed": []
+  },
+  "context": {
+    "current_task": null,
+    "last_action": null
+  },
+  "checkpoints_count": 1
+}
