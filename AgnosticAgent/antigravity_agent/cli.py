@@ -87,6 +87,16 @@ def watch_project():
     else:
         print("❌ Motor core başlatılamadı: shadow_watcher.py bulunamadı.")
 
+def run_script(script_name, script_args):
+    core_dir = get_core_dir()
+    script_path = os.path.join(core_dir, "core", script_name)
+    if os.path.exists(script_path):
+        result = subprocess.run([sys.executable, script_path] + script_args)
+        sys.exit(result.returncode)
+    else:
+        print(f"❌ Motor core scripti bulunamadı: {script_name}")
+        sys.exit(1)
+
 def main():
     parser = argparse.ArgumentParser(description="Antigravity CLI - Proaktif Yazılım Geliştirme Asistanı")
     subparsers = parser.add_subparsers(dest="command", help="Kullanılabilir komutlar")
@@ -100,6 +110,11 @@ def main():
     # watch komutu
     parser_watch = subparsers.add_parser("watch", help="Projenizde dosya değişikliklerini canlı dinler ve anında analiz yapar.")
 
+    # run komutu (Hook'lar için proxy)
+    parser_run = subparsers.add_parser("run", help="Motor içindeki belirli bir scripti çalıştırır.")
+    parser_run.add_argument("script_name", help="Çalıştırılacak scriptin adı (örn: contract_validator.py)")
+    parser_run.add_argument("script_args", nargs=argparse.REMAINDER, help="Scripte iletilecek argümanlar")
+
     args = parser.parse_args()
 
     if args.command == "init":
@@ -108,6 +123,8 @@ def main():
         check_project()
     elif args.command == "watch":
         watch_project()
+    elif args.command == "run":
+        run_script(args.script_name, args.script_args)
     else:
          parser.print_help()
 

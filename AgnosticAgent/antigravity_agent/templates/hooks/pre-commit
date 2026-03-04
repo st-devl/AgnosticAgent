@@ -11,33 +11,25 @@ if [ -z "$STAGED_FILES" ]; then
 fi
 
 # 1. Contract Validator
-if [ -f ".agent/scripts/core/contract_validator.py" ]; then
-    # Bazı betikler argüman alıyor olabilir, biz değişen dosyaları yollayalım. 
-    # Betik desteklemiyorsa bile zararı olmaz (esnek yazıldıysa).
-    python3 .agent/scripts/core/contract_validator.py $STAGED_FILES
-    if [ $? -ne 0 ]; then
-        echo "❌ Antigravity: Kontrat standartlarına uymayan kod tespit edildi! Commit iptal edildi."
-        exit 1
-    fi
+# antigravity cli'a devredildi
+antigravity run contract_validator.py $STAGED_FILES
+if [ $? -ne 0 ]; then
+    echo "❌ Antigravity: Kontrat standartlarına uymayan kod tespit edildi! Commit iptal edildi."
+    exit 1
 fi
 
 # 2. Tech Stack Enforcer
-if [ -f ".agent/scripts/core/tech_stack_enforcer.py" ]; then
-    python3 .agent/scripts/core/tech_stack_enforcer.py
-    if [ $? -ne 0 ]; then
-        echo "❌ Antigravity: Tech Stack ihlali tespit edildi! Commit iptal edildi."
-        exit 1
-    fi
+antigravity run tech_stack_enforcer.py
+if [ $? -ne 0 ]; then
+    echo "❌ Antigravity: Tech Stack ihlali tespit edildi! Commit iptal edildi."
+    exit 1
 fi
 
 # 3. Secret Scanner
-if [ -f ".agent/scripts/core/secret_scanner.py" ]; then
-    # Değişen dosyaları veya projeyi tarayabilir
-    python3 .agent/scripts/core/secret_scanner.py
-    if [ $? -ne 0 ]; then
-        echo "❌ Antigravity: Güvenlik İhlali (Secret/Token Leak) tespit edildi! Commit iptal edildi."
-        exit 1
-    fi
+antigravity run secret_scanner.py
+if [ $? -ne 0 ]; then
+    echo "❌ Antigravity: Güvenlik İhlali (Secret/Token Leak) tespit edildi! Commit iptal edildi."
+    exit 1
 fi
 
 echo "✅ Antigravity Gatekeeper: Her şey yolunda, commit'e izin veriliyor."
