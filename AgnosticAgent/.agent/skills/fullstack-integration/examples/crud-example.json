@@ -1,0 +1,138 @@
+{
+  "_comment": "Bu dosya ÖRNEK amaçlıdır. Gerçek kontratlar contracts/ klasöründe saklanır.",
+  
+  "operation": "create_resource",
+  "version": "1.0.0",
+  "description": "Yeni bir kaynak oluşturur (Generic CRUD Create örneği)",
+  
+  "input": {
+    "fields": [
+      {
+        "name": "name",
+        "type": "string",
+        "required": true,
+        "validation": {
+          "rules": {
+            "min_length": 3,
+            "max_length": 100,
+            "pattern": "^[a-zA-Z0-9\\s-_]+$"
+          },
+          "error_message": "İsim 3-100 karakter arası olmalı ve sadece harf, rakam, boşluk, tire içerebilir"
+        },
+        "description": "Kaynağın adı",
+        "example": "Örnek Kaynak"
+      },
+      {
+        "name": "description",
+        "type": "string",
+        "required": false,
+        "validation": {
+          "rules": {
+            "max_length": 500
+          },
+          "error_message": "Açıklama en fazla 500 karakter olabilir"
+        },
+        "description": "Kaynağın açıklaması",
+        "example": "Bu bir örnek kaynak açıklamasıdır"
+      },
+      {
+        "name": "status",
+        "type": "string",
+        "required": false,
+        "validation": {
+          "rules": {
+            "enum": ["active", "inactive", "draft"]
+          },
+          "error_message": "Durum active, inactive veya draft olmalıdır"
+        },
+        "description": "Kaynağın durumu",
+        "example": "active",
+        "default": "draft"
+      },
+      {
+        "name": "tags",
+        "type": "array",
+        "required": false,
+        "validation": {
+          "rules": {
+            "max_items": 10,
+            "item_type": "string"
+          },
+          "error_message": "En fazla 10 etiket eklenebilir"
+        },
+        "description": "Kaynak etiketleri",
+        "example": ["tag1", "tag2"]
+      }
+    ]
+  },
+  
+  "output": {
+    "success": {
+      "type": "object",
+      "schema": {
+        "id": {
+          "type": "string",
+          "description": "Oluşturulan kaynağın ID'si",
+          "example": "resource_abc123xyz"
+        },
+        "name": {
+          "type": "string",
+          "description": "Kaynağın adı",
+          "example": "Örnek Kaynak"
+        },
+        "description": {
+          "type": "string",
+          "description": "Kaynağın açıklaması",
+          "example": "Bu bir örnek kaynak açıklamasıdır"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "inactive", "draft"],
+          "description": "Kaynağın durumu",
+          "example": "draft"
+        },
+        "tags": {
+          "type": "array",
+          "description": "Kaynak etiketleri",
+          "example": ["tag1", "tag2"]
+        },
+        "created_at": {
+          "type": "string",
+          "format": "iso8601",
+          "description": "Oluşturulma zamanı",
+          "example": "2026-01-18T12:00:00Z"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "iso8601",
+          "description": "Son güncellenme zamanı",
+          "example": "2026-01-18T12:00:00Z"
+        }
+      },
+      "description": "Başarılı oluşturma yanıtı"
+    },
+    "errors": {
+      "validation": "Bkz: .agent/rules/error-handling.md",
+      "auth": "Bkz: .agent/rules/error-handling.md",
+      "business": "Bkz: .agent/rules/error-handling.md"
+    }
+  },
+  
+  "metadata": {
+    "auth_required": true,
+    "permissions": ["resource:create"],
+    "rate_limit": "100/hour",
+    "idempotent": true,
+    "cacheable": false,
+    "http": {
+      "method": "POST",
+      "path": "/api/v1/resources",
+      "headers": {
+        "required": ["Authorization", "Content-Type"],
+        "optional": ["X-Idempotency-Key"]
+      }
+    }
+  },
+  
+  "_usage_note": "Bu örneği referans alarak kendi CRUD kontratlarınızı oluşturun. İsimleri ve field'ları projenize göre uyarlayın."
+}

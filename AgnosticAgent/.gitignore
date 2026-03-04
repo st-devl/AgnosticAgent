@@ -1,0 +1,123 @@
+# Security: Local Keys File
+docs/project_keys.md
+
+# Agent System Files
+.gemini/
+.agent/logs/
+.agent/state/
+
+# CONTRACTS - AUTO-GENERATED FILES
+# ============================================
+# Auto-generated dosyaları ignore et
+contracts/**/*.generated.*
+contracts/**/*.template.*
+
+# Ama contract.json ve registry.json'ları koru
+!contracts/**/contract.json
+!contracts/registry.json
+
+# Mock dosyalar (opsiyonel - commit etmek isteyebilirsin)
+# contracts/**/*.mocks.json
+
+# ============================================
+# NODE / JAVASCRIPT
+# ============================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# ============================================
+# ENVIRONMENT FILES
+# ============================================
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ============================================
+# IDE / EDITOR
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# ============================================
+# LOGS
+# ============================================
+logs/
+*.log
+
+# ============================================
+# TEMPORARY FILES
+# ============================================
+tmp/
+temp/
+*.tmp
+*.temp
+
+# ============================================
+# TESTING
+# ============================================
+coverage/
+.nyc_output/
+*.lcov
+
+# ============================================
+# PYTHON (eğer Python kullanıyorsan)
+# ============================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+env/
+.venv
+
+# ============================================
+# PHP (eğer Laravel/PHP kullanıyorsan)
+# ============================================
+vendor/
+composer.lock
+.phpunit.result.cache
+
+# ============================================
+# DATABASE
+# ============================================
+*.sqlite
+*.sqlite3
+*.db
+
+# ============================================
+# OS GENERATED
+# ============================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ============================================
+# MISC
+# ============================================
+*.bak
+*.cache
+*.pid
+*.seed
+*.pid.lock

@@ -1,0 +1,115 @@
+import os
+import shutil
+import argparse
+import sys
+import subprocess
+
+# Ensure the current directory is in sys.path so 'antigravity' can be imported
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+
+def get_core_dir():
+    # antigravity klasörünün nerede kurulu olduğunu bul (site-packages içi)
+    return os.path.dirname(os.path.abspath(__file__))
+
+def init_project():
+    print("🚀 AgnosticAgent Proje İlklendirmesi başlatılıyor...")
+    
+    core_dir = get_core_dir()
+    target_dir = os.getcwd() # Komutun çalıştırıldığı yer (Kullanıcının projesi)
+    
+    # 1. docs/ klasörünü yarat
+    docs_dir = os.path.join(target_dir, "docs")
+    if not os.path.exists(docs_dir):
+        os.makedirs(docs_dir)
+        print("📁 docs/ klasörü oluşturuldu.")
+        
+    # 2. Şablon dosyaları kopyala
+    # Şablonlar motorun /templates/docs/templates dizininde
+    template_src = os.path.join(core_dir, "templates", "docs", "templates")
+    template_dst = os.path.join(docs_dir, "templates")
+    
+    if os.path.exists(template_src):
+        if not os.path.exists(template_dst):
+             shutil.copytree(template_src, template_dst)
+             print("📄 Şablon (template) dosyaları kopyalandı.")
+             
+        # SSOT dosyaları kullanıcı projesinde yoksa boş/şablon halini kopyala (VAR OLANLARI EZME)
+        ssot_files = ["tech_stack.md", "architecture.md", "project_context.md", "prd.md", "memory.md", "registry.md"]
+        for md_file in ssot_files:
+            target_md = os.path.join(docs_dir, md_file)
+            if not os.path.exists(target_md):
+                # Şimdilik boş dosyalar oluşturuyoruz (Gerçek şablon dosyaları da çekilebilir)
+                with open(target_md, "w") as f:
+                    f.write(f"# {md_file.replace('.md', '')}\n\nAntigravity tarafından oluşturuldu.")
+                print(f"✨ Yeni {md_file} oluşturuldu.")
+            else:
+                print(f"✅ {md_file} zaten var, korunuyor (Ezilmedi!).")
+    
+
+    # 3. Git Hook kurulumu
+    git_hooks_dir = os.path.join(target_dir, ".git", "hooks")
+    if os.path.exists(os.path.join(target_dir, ".git")):
+        pre_commit_src = os.path.join(core_dir, "templates", "hooks", "pre-commit")
+        pre_commit_dst = os.path.join(git_hooks_dir, "pre-commit")
+        
+        if os.path.exists(pre_commit_src):
+             shutil.copy2(pre_commit_src, pre_commit_dst)
+             os.chmod(pre_commit_dst, 0o755)
+             print("🪝 .git/hooks/pre-commit kancası kuruldu.")
+    else:
+        print("⚠️ Bu klasör bir git reposu değil. Hook'lar kurulamadı.")
+        
+    print("\n🎉 Kurulum Tamamlandı! Projeniz AgnosticAgent'a bağlandı.")
+
+def check_project():
+    print("🔍 AgnosticAgent Kurallar Denetimi başlatılıyor...")
+    
+    # Eskiden health_check.py idi. Direkt onu çağırıyoruz:
+    core_dir = get_core_dir()
+    health_check_script = os.path.join(core_dir, "core", "health_check.py")
+    
+    if os.path.exists(health_check_script):
+        subprocess.run([sys.executable, health_check_script])
+    else:
+        print("❌ Motor core başlatılamadı: health_check.py bulunamadı.")
+    
+def watch_project():
+    print("👀 AgnosticAgent Gölge Denetçi (Watcher) başlatılıyor...")
+    core_dir = get_core_dir()
+    watcher_script = os.path.join(core_dir, "core", "shadow_watcher.py")
+    
+    if os.path.exists(watcher_script):
+        try:
+             subprocess.run([sys.executable, watcher_script])
+        except KeyboardInterrupt:
+             print("\n👋 Kapatılıyor...")
+    else:
+        print("❌ Motor core başlatılamadı: shadow_watcher.py bulunamadı.")
+
+def main():
+    parser = argparse.ArgumentParser(description="Antigravity CLI - Proaktif Yazılım Geliştirme Asistanı")
+    subparsers = parser.add_subparsers(dest="command", help="Kullanılabilir komutlar")
+
+    # init komutu
+    parser_init = subparsers.add_parser("init", help="Mevcut projenizde AgnosticAgent'ı başlatır (şablonları ve hookları kurar).")
+    
+    # check komutu
+    parser_check = subparsers.add_parser("check", help="Mevcut projenin SSOT, mimari ve teknoloji kurallarına uygunluğunu denetler.")
+    
+    # watch komutu
+    parser_watch = subparsers.add_parser("watch", help="Projenizde dosya değişikliklerini canlı dinler ve anında analiz yapar.")
+
+    args = parser.parse_args()
+
+    if args.command == "init":
+        init_project()
+    elif args.command == "check":
+        check_project()
+    elif args.command == "watch":
+        watch_project()
+    else:
+         parser.print_help()
+
+if __name__ == "__main__":
+    main()

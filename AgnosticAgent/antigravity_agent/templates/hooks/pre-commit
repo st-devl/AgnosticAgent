@@ -1,0 +1,44 @@
+#!/bin/bash
+# .git/hooks/pre-commit
+
+echo "🤖 Antigravity Gatekeeper: Değişen dosyalar analiz ediliyor..."
+
+# Sadece değişen ve stage edilmiş dosyaları bul
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(php|ts|js|py|json|md)$')
+
+if [ -z "$STAGED_FILES" ]; then
+    exit 0
+fi
+
+# 1. Contract Validator
+if [ -f ".agent/scripts/core/contract_validator.py" ]; then
+    # Bazı betikler argüman alıyor olabilir, biz değişen dosyaları yollayalım. 
+    # Betik desteklemiyorsa bile zararı olmaz (esnek yazıldıysa).
+    python3 .agent/scripts/core/contract_validator.py $STAGED_FILES
+    if [ $? -ne 0 ]; then
+        echo "❌ Antigravity: Kontrat standartlarına uymayan kod tespit edildi! Commit iptal edildi."
+        exit 1
+    fi
+fi
+
+# 2. Tech Stack Enforcer
+if [ -f ".agent/scripts/core/tech_stack_enforcer.py" ]; then
+    python3 .agent/scripts/core/tech_stack_enforcer.py
+    if [ $? -ne 0 ]; then
+        echo "❌ Antigravity: Tech Stack ihlali tespit edildi! Commit iptal edildi."
+        exit 1
+    fi
+fi
+
+# 3. Secret Scanner
+if [ -f ".agent/scripts/core/secret_scanner.py" ]; then
+    # Değişen dosyaları veya projeyi tarayabilir
+    python3 .agent/scripts/core/secret_scanner.py
+    if [ $? -ne 0 ]; then
+        echo "❌ Antigravity: Güvenlik İhlali (Secret/Token Leak) tespit edildi! Commit iptal edildi."
+        exit 1
+    fi
+fi
+
+echo "✅ Antigravity Gatekeeper: Her şey yolunda, commit'e izin veriliyor."
+exit 0

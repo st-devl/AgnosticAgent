@@ -1,0 +1,2 @@
+[console_scripts]
+antigravity = antigravity_agent.cli:main

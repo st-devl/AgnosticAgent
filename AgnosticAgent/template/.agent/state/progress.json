@@ -1,0 +1,14 @@
+{
+  "tasks": [],
+  "completed": [
+    {
+      "task": "Test Duration",
+      "started_at": "2026-01-17T12:59:29.528222+00:00",
+      "completed_at": "2026-01-17T12:59:33.012151+00:00",
+      "duration": {
+        "seconds": 3,
+        "human": "0m 3s"
+      }
+    }
+  ]
+}

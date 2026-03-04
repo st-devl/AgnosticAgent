@@ -1,0 +1,17 @@
+Metadata-Version: 2.4
+Name: antigravity-core
+Version: 1.0.0
+Summary: Proaktif AI tabanlı Yazılım Geliştirme Asistanı ve Mimari Denetleme Motoru
+Author: Antigravity Team
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Requires-Dist: watchdog>=2.3.0
+Requires-Dist: pyyaml>=6.0
+Requires-Dist: requests>=2.31.0
+Dynamic: author
+Dynamic: classifier
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
