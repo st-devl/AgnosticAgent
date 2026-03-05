@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="antigravity-core",
-    version="2.0.0",
+    version="2.0.1",
     description="Proaktif AI tabanlı Yazılım Geliştirme Asistanı ve Mimari Denetleme Motoru",
     author="Antigravity Team",
     packages=find_packages(),

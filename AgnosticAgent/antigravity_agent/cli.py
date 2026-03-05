@@ -5,7 +5,7 @@ import sys
 import subprocess
 
 
-VERSION = "2.0.0"
+VERSION = "2.0.1"
 
 
 def get_core_dir():
@@ -162,6 +162,8 @@ def init_project():
                 shutil.copy2(hook_src, hook_dst)
                 os.chmod(hook_dst, 0o755)
                 print("✅ .git/hooks/pre-commit hook'u kuruldu")
+            except shutil.SameFileError:
+                print("✅ .git/hooks/pre-commit hook'u zaten kurulu (aynı dosya)")
             except Exception as e:
                 errors.append(f"Git hook hatası: {e}")
         else:
@@ -325,9 +327,14 @@ def update_project():
     hook_src = os.path.join(agent_dir, "hooks", "pre-commit")
     hook_dst = os.path.join(git_hooks_dir, "pre-commit")
     if os.path.exists(hook_src) and os.path.exists(git_hooks_dir):
-        shutil.copy2(hook_src, hook_dst)
-        os.chmod(hook_dst, 0o755)
-        print("  ✅ .git/hooks/pre-commit güncellendi")
+        try:
+            shutil.copy2(hook_src, hook_dst)
+            os.chmod(hook_dst, 0o755)
+            print("  ✅ .git/hooks/pre-commit güncellendi")
+        except shutil.SameFileError:
+            print("  ✅ .git/hooks/pre-commit güncel (aynı dosya)")
+        except Exception as e:
+            errors.append(f"Git hook güncelleme hatası: {e}")
 
     # ── Sonuç raporu ──
     print("\n" + "═" * 50)
