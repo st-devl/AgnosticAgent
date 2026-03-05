@@ -71,39 +71,52 @@ antigravity check
 ```
 
 Beklenen çıktı: `Health Score: 100/100`
-### 4. Projeyi Planla ve Doldur (Otonom)
+### 4. Projenin Beynini Oluşturma (Otonom Planlama)
 
 ```bash
 /temel
 ```
 
-Bu tamamen otonom bir komuttur. Siz sadece `docs/prd.md` dosyasını (Ürün Gereksinim Belgesi) doldurursunuz. Ajan, bu komut tetiklendiğinde PRD'nizi okur ve projeniz için gerekli tüm kurumsal şablonları otonom olarak doldurur:
+> 🎯 **BU KOMUTUN AMACI:** Projenin başında sizi karmaşık mimari dosyalar oluşturmaktan kurtarmak ve sizin yerinize Ajan'ın (benim) projeyi planlamasını sağlamaktır.
 
-| Kaynak (SSOT) | Çıktı (Otonom Yazılır) |
+**Ne Zaman ve Nasıl Kullanılır?**
+1. Projeyi başlattıktan sonra (`antigravity init` sonrasında), doğrudan `docs/prd.md` (Product Requirements Document) dosyasını açın.
+2. Bu dosya sizin tuvalinizdir. Oraya yapmak istediğiniz projeyi, aklınızdaki özellikleri, kullanmak istediğiniz (veya benim seçmemi istediğiniz) teknolojileri, tasarım hissini ve tüm beklentilerinizi **insan dilinde** yazın ve kaydedin.
+3. Ardından sohbete dönüp `/temel` komutunu yazın. 
+
+**Nasıl Çalışır?**
+Ben (Ajan) sizin yazdığınız o `prd.md` dosyasını baştan aşağı okurum. Kendimi "Baş Mühendis" rolüne sokarım ve projenin ihtiyaç duyduğu tüm teknik belgeleri sizin yerinize **otonom olarak doldururum**. Şunları sizin için hazırlarım:
+
+| Kaynak (Sizin Yazdığınız) | Çıktı (Benim Otonom Hazırladıklarım) |
 |-----------------|-----------------|
-| `docs/prd.md` | `docs/tech_stack.md` (Teknolojiler) |
-| `docs/prd.md` | `docs/architecture.md` (Mimari/Klasörler) |
-| `docs/prd.md` | `docs/project_brief.md` (Genel Özet) |
-| `docs/prd.md` | `docs/design_brief.md` (Tasarım Dili) |
-| `docs/prd.md` | `docs/data_privacy.md` (Güvenlik) |
-| `docs/prd.md` | `docs/secret_policy.md` (Credential) |
+| `docs/prd.md` | `docs/tech_stack.md` (Kullanılacak diller, framework'ler, DB) |
+| `docs/prd.md` | `docs/architecture.md` (Klasör yapıları, katmanlar) |
+| `docs/prd.md` | `docs/project_brief.md` (Hedef kitle, MVP özellikleri) |
+| `docs/prd.md` | `docs/design_brief.md` (Arayüz hissi, UI prensipleri) |
+| `docs/prd.md` | `docs/data_privacy.md` (Güvenlik gereksinimleri) |
+| `docs/prd.md` | `docs/secret_policy.md` (Credential yönetim kuralları) |
 
-*Not: Siz sadece ne istediğinizi yazarsınız, Ajan mühendislik kararlarını alıp tüm belgeleri proje ruhuna göre hazırlar.*
+*Özetle: Siz sadece vizyonunuzu anlattınız, ben projenin teknik anayasasını yazdım.*
 
-### 5. Proje İnşaatını Başlat (Fiziksel)
+---
+
+### 5. Projenin Fiziksel İnşası (Otonom Kurulum)
 
 ```bash
 /start
 ```
 
-Belgeler (Özellikle `tech_stack.md` ve `architecture.md`) hazırlandıktan sonra projeyi fiziksel olarak ayağa kaldırır.
-- Seçtiğiniz teknolojiye uygun paket yöneticisini bulur (npm, pip3, composer vb.).
-- Gerekli framework'ü kurar (`npx create-next-app` vb.)
-- Klasör yapısını ve sanal ortamları inşa eder.
+> 🎯 **BU KOMUTUN AMACI:** Sadece kağıt üstünde planlanan mimariyi, terminali kullanarak gerçekten **bilgisayarınıza kurmaktır**.
 
-> ⚠️ Bu komut fiziksel indirme ve klasör açma işlemleri yaptığı için Gatekeeper (Kullanıcı Onayı) onayı gerektirir. Planı gösterir, onaylarsanız inşaata başlar.
+**Ne Zaman ve Nasıl Kullanılır?**
+1. `/temel` komutu çalışıp belgeleriniz (özellikle `tech_stack.md` ve `architecture.md`) benim tarafımdan doldurulduktan sonra çalıştırılır. Seçtiğim teknolojileri inceleyip onayladıysanız bu komutu girebilirsiniz.
 
----
+**Nasıl Çalışır?**
+1. Ben `tech_stack.md` dosyasını okurum (Örn: "React, Vite, Tailwind kullanılacak" yazıyorsa).
+2. Terminalinizde `npm create vite@latest...` gibi projenin iskeletini ayağa kaldıracak gerekli bilgisayar komutlarını belirlerim.
+3. İndirmem gereken paketleri (npm, pip3 vb.) hesaplarım.
+4. Terminalde çalıştıracağım komutların listesini size gösteririm ve **Gatekeeper (Güvenlik Onayınız)** onayını isterim.
+5. "Evet" dediğiniz an, tüm klasörleri açar, iskeleti kurar, gereksinimleri indirir ve kod yazmaya hazır fiziksel bir proje teslim ederim.
 
 ## 🔄 Proje Yaşam Döngüsü
 
