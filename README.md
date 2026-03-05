@@ -71,7 +71,14 @@ antigravity check
 ```
 
 Beklenen çıktı: `Health Score: 100/100`
-### 4. Projenin Beynini Oluşturma (Otonom Planlama)
+
+---
+
+## 🚀 Projeyi İlk Kez Başlatmak (Otonom Planlama ve İnşa)
+
+Kurulumu sorunsuz tamamladıktan sonra projenizin temelini zekice ve vakit kaybetmeden atmak için şu iki komutu sırayla kullanmalısınız:
+
+### Adım 1: Projenin Beynini Oluşturma (Otonom Planlama)
 
 ```bash
 /temel
@@ -100,7 +107,7 @@ Ben (Ajan) sizin yazdığınız o `prd.md` dosyasını baştan aşağı okurum. 
 
 ---
 
-### 5. Projenin Fiziksel İnşası (Otonom Kurulum)
+### Adım 2: Projenin Fiziksel İnşası (Otonom Kurulum)
 
 ```bash
 /start
@@ -117,6 +124,7 @@ Ben (Ajan) sizin yazdığınız o `prd.md` dosyasını baştan aşağı okurum. 
 3. İndirmem gereken paketleri (npm, pip3 vb.) hesaplarım.
 4. Terminalde çalıştıracağım komutların listesini size gösteririm ve **Gatekeeper (Güvenlik Onayınız)** onayını isterim.
 5. "Evet" dediğiniz an, tüm klasörleri açar, iskeleti kurar, gereksinimleri indirir ve kod yazmaya hazır fiziksel bir proje teslim ederim.
+---
 
 ## 🔄 Proje Yaşam Döngüsü
 
