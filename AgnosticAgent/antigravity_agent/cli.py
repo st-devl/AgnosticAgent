@@ -73,7 +73,53 @@ def check_project():
         subprocess.run([sys.executable, health_check_script])
     else:
         print("❌ Motor core başlatılamadı: health_check.py bulunamadı.")
+
+def update_project():
+    print("🔄 AgnosticAgent Sistem Güncellemesi başlatılıyor...")
     
+    core_dir = get_core_dir()
+    target_dir = os.getcwd()
+    agent_dir = os.path.join(target_dir, ".agent")
+    
+    if not os.path.exists(agent_dir):
+        print("❌ Hata: Bu dizinde kurulu bir AgnosticAgent (.agent) bulunamadı. Lütfen önce 'init' yapın.")
+        return
+
+    # 1. Güncellenecek Sistem Klasörleri
+    # Bu klasörler motorun en güncel haliyle (core_dir içindekilerle) değiştirilecek
+    system_folders = ["core", "rules", "skills", "workflows", "scripts", "config"]
+    
+    for folder in system_folders:
+        src = os.path.join(core_dir, folder)
+        dst = os.path.join(agent_dir, folder)
+        
+        # rules.yaml gibi kritik sistem dosyalarını yenile ama docs/ içindekilere dokunma
+        if os.path.exists(src):
+            if os.path.exists(dst):
+                shutil.rmtree(dst)
+            shutil.copytree(src, dst)
+            print(f"✅ {folder} klasörü güncellendi.")
+
+    # 2. Docs içindeki şablonları da güncelle
+    template_src = os.path.join(core_dir, "templates", "docs", "templates")
+    template_dst = os.path.join(target_dir, "docs", "templates")
+    if os.path.exists(template_src):
+        if os.path.exists(template_dst):
+            shutil.rmtree(template_dst)
+        shutil.copytree(template_src, template_dst)
+        print("✅ docs/templates (Şablonlar) güncellendi.")
+
+    # 3. Git Hook'u yenile
+    pre_commit_src = os.path.join(core_dir, "templates", "hooks", "pre-commit")
+    pre_commit_dst = os.path.join(target_dir, ".git", "hooks", "pre-commit")
+    if os.path.exists(pre_commit_src) and os.path.exists(os.path.dirname(pre_commit_dst)):
+        shutil.copy2(pre_commit_src, pre_commit_dst)
+        os.chmod(pre_commit_dst, 0o755)
+        print("✅ .git/hooks/pre-commit kancası yenilendi.")
+
+    print("\n🎉 Güncelleme Başarıyla Tamamlandı!")
+    print("⚠️ NOT: 'docs/*.md' (SSOT) ve '.agent/state/' (Hafıza) dosyalarınız korunmuştur.")
+
 def watch_project():
     print("👀 AgnosticAgent Gölge Denetçi (Watcher) başlatılıyor...")
     core_dir = get_core_dir()
@@ -107,6 +153,9 @@ def main():
     # check komutu
     parser_check = subparsers.add_parser("check", help="Mevcut projenin SSOT, mimari ve teknoloji kurallarına uygunluğunu denetler.")
     
+    # update komutu
+    parser_update = subparsers.add_parser("update", help="Projenizdeki sistem dosyalarını (.agent içerisindekileri) hafızanıza dokunmadan günceller.")
+
     # watch komutu
     parser_watch = subparsers.add_parser("watch", help="Projenizde dosya değişikliklerini canlı dinler ve anında analiz yapar.")
 
@@ -121,6 +170,8 @@ def main():
         init_project()
     elif args.command == "check":
         check_project()
+    elif args.command == "update":
+        update_project()
     elif args.command == "watch":
         watch_project()
     elif args.command == "run":
