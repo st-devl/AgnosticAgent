@@ -71,23 +71,37 @@ antigravity check
 ```
 
 Beklenen çıktı: `Health Score: 100/100`
-### 4. Projeyi Başlat
+### 4. Projeyi Planla ve Doldur (Otonom)
 
+```bash
+/temel
 ```
+
+Bu tamamen otonom bir komuttur. Siz sadece `docs/prd.md` dosyasını (Ürün Gereksinim Belgesi) doldurursunuz. Ajan, bu komut tetiklendiğinde PRD'nizi okur ve projeniz için gerekli tüm kurumsal şablonları otonom olarak doldurur:
+
+| Kaynak (SSOT) | Çıktı (Otonom Yazılır) |
+|-----------------|-----------------|
+| `docs/prd.md` | `docs/tech_stack.md` (Teknolojiler) |
+| `docs/prd.md` | `docs/architecture.md` (Mimari/Klasörler) |
+| `docs/prd.md` | `docs/project_brief.md` (Genel Özet) |
+| `docs/prd.md` | `docs/design_brief.md` (Tasarım Dili) |
+| `docs/prd.md` | `docs/data_privacy.md` (Güvenlik) |
+| `docs/prd.md` | `docs/secret_policy.md` (Credential) |
+
+*Not: Siz sadece ne istediğinizi yazarsınız, Ajan mühendislik kararlarını alıp tüm belgeleri proje ruhuna göre hazırlar.*
+
+### 5. Proje İnşaatını Başlat (Fiziksel)
+
+```bash
 /start
 ```
 
-Bu komut sana sorular sorar ve cevaplarını şu dosyalara yazar:
+Belgeler (Özellikle `tech_stack.md` ve `architecture.md`) hazırlandıktan sonra projeyi fiziksel olarak ayağa kaldırır.
+- Seçtiğiniz teknolojiye uygun paket yöneticisini bulur (npm, pip3, composer vb.).
+- Gerekli framework'ü kurar (`npx create-next-app` vb.)
+- Klasör yapısını ve sanal ortamları inşa eder.
 
-| Şablon (Okunur) | Çıktı (Yazılır) |
-|-----------------|-----------------|
-| `docs/templates/project_brief_template.md` | `docs/project_brief.md` |
-| `docs/templates/tech_stack_template.md` | `docs/tech_stack.md` |
-| `docs/templates/design_brief_template.md` | `docs/design_brief.md` |
-| `docs/templates/data_privacy_template.md` | `docs/data_privacy.md` |
-
-> ⚠️ `docs/tech_stack.md` ve `docs/architecture.md` şu an **örnek veriyle** dolu.
-> `/start` komutu bu dosyaları projenize özel içerikle üzerine yazar.
+> ⚠️ Bu komut fiziksel indirme ve klasör açma işlemleri yaptığı için Gatekeeper (Kullanıcı Onayı) onayı gerektirir. Planı gösterir, onaylarsanız inşaata başlar.
 
 ---
 
@@ -111,7 +125,8 @@ Bu komut sana sorular sorar ve cevaplarını şu dosyalara yazar:
 
 | Komut | Ne Yapar | Ne Zaman Kullanılır |
 |-------|----------|-------------------|
-| `/start` | Yeni proje başlatır (röportaj → SSOT dosyaları) | **Projenin ilk günü** |
+| `/temel` | `prd.md`'yi okuyup TÜM projenin mimari belgelerini otonom doldurur | **PRD yazıldıktan hemen sonra** |
+| `/start` | Mimari belgelere göre paketi, framework'ü ve fiziki yapıyı kurar | **Belgeler dolduktan sonra** |
 | `/plan` | Karmaşık görev için detaylı plan oluşturur | Çok adımlı feature'lar |
 | `/think` | Görevi derinlemesine analiz eder | Belirsiz veya riskli durumlar |
 | `/ultrathink` | Enterprise-grade proje analizi | Kritik mimari kararlar |
