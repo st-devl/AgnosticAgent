@@ -26,11 +26,15 @@ Bu template, her yeni projede ajan-tabanlı geliştirme altyapısını sıfırda
 
 ### Adım 1: Global Motoru Kurma (Bir Kez Yapılır)
 
-Öncelikle Antigravity motorunu terminalinize global bir CLI aracı olarak kurmalısınız:
+Öncelikle Antigravity motorunu terminalinize global bir CLI aracı (Python paketi) olarak kurmalısınız:
+
 ```bash
 pip install git+https://github.com/st-devl/AgnosticAgent.git
 ```
-*Artık terminalinizde herhangi bir dizindeyken `antigravity` komutunu çalıştırabilirsiniz.*
+*Bu komut, `antigravity-agent` paketini ve `antigravity` komutunu sisteminize global olarak kurar. Artık terminalinizde herhangi bir dizindeyken `antigravity` komutunu çalıştırabilirsiniz.*
+
+**💡 Geliştirici / Agent Notu:**
+> Kurulan bu yapı bir "şablon" veya "iskelet" değil; `setup.py` dosyasına sahip, çalıştırılabilir bir **Python Package / CLI Aracıdır**. Sistemi güncellemek istediğinizde repoyu klonlamak yerine sadece `pip install ... --upgrade` yapmanız gerekir.
 
 ### Adım 2: Projeyi Agent'a Bağlama (Her Projede)
 
@@ -44,7 +48,21 @@ Bu komut projenizde otomatik olarak:
 - 📦 Ajana özel (size ait) `docs/` şablonlarını kopyalar (Eğer yoksa)
 - 🪝 `.git/hooks/pre-commit` hook'larını kurup, global motordaki validatorleri buraya bağlar.
 
-> 🛡️ **GÜNCELLEME STRATEJİSİ:** İleride sistemi güncellemek isterseniz sadece `antigravity update` yazmanız yeterlidir. Projenizdeki `docs/tech_stack.md` gibi size özel dosyalar (yakıt) ASLA ezilmez, sadece motor güncellenir.
+### Adım 3: Sistemi Güncelleme (Yeni Özellikler Geldiğinde)
+
+Eğer AgnosticAgent reposuna yeni özellikler eklenirse (eski projelerinizi yeni versiyona yükseltmek veya global motoru güncellemek için):
+
+1. **Global Motoru Güncelle:**
+   ```bash
+   pip install git+https://github.com/st-devl/AgnosticAgent.git --upgrade
+   ```
+
+2. **Proje Altyapısını Güncelle:**
+   Proje dizininde (daha önce `init` yapılmış klasörde) şu komutu çalıştırın:
+   ```bash
+   antigravity update
+   ```
+   > 🛡️ **GÜVENLİ GÜNCELLEME STRATEJİSİ:** Bu komut `.agent/` altındaki sistem dosyalarını yenilerken, sizin `docs/` altındaki SSOT dosyalarınıza ve projenin gelişim hafızasına (memory) **ASLA dokunmaz/ezmez**. Sadece motor güncellenir.
 
 ### Kurulum Sonrası Test
 
