@@ -1,0 +1,16 @@
+{
+    "name": "yenipromt/template",
+    "description": "Antigravity Core Application",
+    "require": {
+        "php": "^8.3",
+        "laravel/framework": "^11.0",
+        "filament/filament": "^3.0",
+        "livewire/livewire": "^3.0",
+        "predis/predis": "^2.0",
+        "stancl/tenancy": "^3.8",
+        "spatie/laravel-permission": "^6.0",
+        "spatie/laravel-medialibrary": "^11.0",
+        "spatie/laravel-translatable": "^6.0"
+    },
+    "require-dev": {}
+}

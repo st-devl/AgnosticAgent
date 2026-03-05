@@ -24,41 +24,35 @@ Bu template, her yeni projede ajan-tabanlı geliştirme altyapısını sıfırda
 
 ## ⚡ Hızlı Başlangıç (Kurulum)
 
-### Yöntem 1: NPX ile (Önerilen)
+### Adım 1: Global Motoru Kurma (Bir Kez Yapılır)
 
+Öncelikle Antigravity motorunu terminalinize global bir CLI aracı olarak kurmalısınız:
 ```bash
-# Yeni proje oluştur
-npx create-agent-system my-project
-
-# Mevcut dizine kur
-npx create-agent-system .
-
-# Git olmadan kur
-npx create-agent-system my-project --no-git
+pip install git+https://github.com/st-devl/AgnosticAgent.git
 ```
+*Artık terminalinizde herhangi bir dizindeyken `antigravity` komutunu çalıştırabilirsiniz.*
 
-Bu komut otomatik olarak:
-- 📦 Template dosyalarını (120+) kopyalar
-- � `git init` yapar
-- � Pre-commit hook'ları kurar
-- � `.gitignore` oluşturur
+### Adım 2: Projeyi Agent'a Bağlama (Her Projede)
 
-### Yöntem 2: Git Clone ile
-
+Yeni veya var olan bir projenizin dizinine gidin ve Agent'ı o proje için başlatın (yakıtları oluşturun):
 ```bash
-git clone <repo-url> yeni-projem
 cd yeni-projem
-bash .agent/hooks/install.sh   # Git hooks kurulumu (opsiyonel)
+antigravity init
 ```
 
-### Kurulum Sonrası
+Bu komut projenizde otomatik olarak:
+- 📦 Ajana özel (size ait) `docs/` şablonlarını kopyalar (Eğer yoksa)
+- 🪝 `.git/hooks/pre-commit` hook'larını kurup, global motordaki validatorleri buraya bağlar.
+
+> 🛡️ **GÜNCELLEME STRATEJİSİ:** İleride sistemi güncellemek isterseniz sadece `antigravity update` yazmanız yeterlidir. Projenizdeki `docs/tech_stack.md` gibi size özel dosyalar (yakıt) ASLA ezilmez, sadece motor güncellenir.
+
+### Kurulum Sonrası Test
 
 ```bash
-python3 .agent/scripts/core/health_check.py
+antigravity check
 ```
 
 Beklenen çıktı: `Health Score: 100/100`
-
 ### 4. Projeyi Başlat
 
 ```

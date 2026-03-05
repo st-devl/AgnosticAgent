@@ -150,6 +150,9 @@ skills:
   localization:
     allowed_tools: ["read", "glob", "grep", "edit"]
     description: "Çeviri ve i18n yönetimi"
+  engineering-guardrails:
+    allowed_tools: ["read", "glob", "grep"]
+    description: "Yazılım mimarisi ve temiz kod koruması"
   fullstack-integration:
     allowed_tools: ["read", "glob", "grep", "edit", "write"]
     description: "Backend ↔ Frontend entegrasyon ve kontrat yönetimi"
@@ -175,6 +178,8 @@ workflows:
       workflow: "/start"
     - keywords: ["düşün", "think", "analiz"]
       workflow: "/think"
+    - keywords: ["code", "logic", "refactor", "logic", "architecture", "backend", "frontend", "schema"]
+      skill: "engineering-guardrails"
 
 # ============================================
 # CONSOLIDATED POLICIES (previously in .agent/policies/)

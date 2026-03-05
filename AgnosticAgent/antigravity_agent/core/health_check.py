@@ -115,7 +115,7 @@ class HealthChecker:
         
         # 5. Skills
         print("\n🎓 Skills")
-        skills = ["database-architecture", "enterprise-security", "performance"]
+        skills = ["database-architecture", "enterprise-security", "performance", "engineering-guardrails"]
         for skill in skills:
             self.check(f"{skill} SKILL.md exists",
                       self.file_exists(f".agent/skills/{skill}/SKILL.md"))

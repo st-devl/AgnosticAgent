@@ -1,12 +1,12 @@
 {
   "$schema": "./registry-schema.json",
   "version": "1.0.0",
-  "last_updated": "2026-01-19T00:00:00Z",
-  "description": "Merkezi kontrat registry. Tüm API kontratları burada indekslenir.",
+  "last_updated": "2026-03-04T16:54:19.357361Z",
+  "description": "Merkezi kontrat registry. T\u00fcm API kontratlar\u0131 burada indekslenir.",
   "contracts": {},
   "domains": {},
   "_usage": {
-    "how_to_add": "Yeni kontrat oluşturulduğunda bu dosya otomatik güncellenir",
+    "how_to_add": "Yeni kontrat olu\u015fturuldu\u011funda bu dosya otomatik g\u00fcncellenir",
     "structure": {
       "contracts": {
         "{operation_name}": {
@@ -18,7 +18,7 @@
               "path": "contracts/{domain}/{entity}/v{version}",
               "created_at": "ISO 8601 date",
               "deprecated": false,
-              "sunset_date": "ISO 8601 date (eğer deprecated ise)"
+              "sunset_date": "ISO 8601 date (e\u011fer deprecated ise)"
             }
           },
           "latest_stable": "v{version}",
