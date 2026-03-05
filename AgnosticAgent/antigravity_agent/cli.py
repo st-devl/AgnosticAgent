@@ -656,19 +656,31 @@ def check_project():
 
     if total_missing == 0 and not warnings:
         print(f"\n🎉 Sistem 100% sağlıklı! Tüm dosyalar eksiksiz.")
-    elif total_missing > 0:
-        # Düzeltme önerileri
-        fix_commands = {}
-        for m in missing:
-            cmd = _fix_command_for(m)
-            if cmd not in fix_commands:
-                fix_commands[cmd] = 0
-            fix_commands[cmd] += 1
-
+    elif total_missing > 0 or warnings:
         print(f"\n🔧 Düzeltme Önerileri:")
         idx = 1
-        for cmd, count in fix_commands.items():
-            print(f"   {idx}. {cmd:<25s} → {count} eksik dosyayı geri yükler")
+        
+        # Eksik dosyalar için komut önerileri
+        if total_missing > 0:
+            fix_commands = {}
+            for m in missing:
+                cmd = _fix_command_for(m)
+                if cmd not in fix_commands:
+                    fix_commands[cmd] = 0
+                fix_commands[cmd] += 1
+
+            for cmd, count in fix_commands.items():
+                print(f"   {idx}. {cmd:<25s} → {count} eksik dosyayı geri yükler")
+                idx += 1
+                
+        # Boş dosyalar için öneriler
+        empty_files = [w[0] for w in warnings if w[1] == "Dosya boş"]
+        if empty_files:
+            empty_docs = [f for f in empty_files if f.startswith("docs/")]
+            if empty_docs:
+                print(f"   {idx}. {'/start':<25s} → Boş dokümanları ({len(empty_docs)} adet) doldurmak için proje röportajını başlatır")
+                idx += 1
+            print(f"   {idx}. {'(Manuel Düzenleme)':<25s} → Boş dosyalara gerekli içeriği manuel olarak ekleyin")
             idx += 1
 
 
