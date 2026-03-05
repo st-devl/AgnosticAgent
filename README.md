@@ -44,7 +44,21 @@ Bu komut projenizde otomatik olarak:
 - 📦 Ajana özel (size ait) `docs/` şablonlarını kopyalar (Eğer yoksa)
 - 🪝 `.git/hooks/pre-commit` hook'larını kurup, global motordaki validatorleri buraya bağlar.
 
-> 🛡️ **GÜNCELLEME STRATEJİSİ:** İleride sistemi güncellemek isterseniz sadece `antigravity update` yazmanız yeterlidir. Projenizdeki `docs/tech_stack.md` gibi size özel dosyalar (yakıt) ASLA ezilmez, sadece motor güncellenir.
+### Adım 3: Sistemi Güncelleme (Yeni Özellikler Geldiğinde)
+
+Eski projelerinizi yeni versiyona yükseltmek veya global motoru güncellemek için:
+
+1. **Global Motoru Güncelle:**
+   ```bash
+   pip install git+https://github.com/st-devl/AgnosticAgent.git --upgrade
+   ```
+
+2. **Proje Altyapısını Güncelle:**
+   Proje dizinine gidin ve şu komutu çalıştırın:
+   ```bash
+   antigravity update
+   ```
+   > 🛡️ **GÜVENLİ GÜNCELLEME:** Bu komut `.agent/` altındaki sistem dosyalarını yenilerken, sizin `docs/` altındaki SSOT dosyalarınıza ve projenin gelişim hafızasına (memory) asla dokunmaz.
 
 ### Kurulum Sonrası Test
 
