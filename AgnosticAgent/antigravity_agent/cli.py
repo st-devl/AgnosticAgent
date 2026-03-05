@@ -349,30 +349,327 @@ def update_project():
 
 
 # ═══════════════════════════════════════════════════════════════════
-# CHECK — Sağlık kontrolü
+# CHECK — Kapsamlı sistem doğrulama
 # ═══════════════════════════════════════════════════════════════════
 
+# Kontrol kategorileri ve hangi template dizinine karşılık geldiği
+# (kategori_adı, template_alt_dizin, proje_hedef_yol, açıklama)
+CHECK_CATEGORIES = [
+    {
+        "name": "Ana Dizin Yapısı",
+        "icon": "📁",
+        "items": [
+            {"template_base": "agent", "project_path": ".agent", "type": "dir"},
+            {"template_base": "docs",  "project_path": "docs",   "type": "dir"},
+            {"template_base": "contracts", "project_path": "contracts", "type": "dir"},
+        ],
+    },
+]
+
+# SSOT dosyaları — init ile oluşturulur, update ile ezilmez
+SSOT_DOC_FILES = [
+    "tech_stack.md", "architecture.md", "prd.md", "memory.md",
+    "registry.md", "decision_log.md", "project_brief.md",
+    "design_brief.md", "data_privacy.md", "secret_policy.md",
+    "project_keys.md",
+]
+
+# İgnore edilecek dosya desenleri (kontrol dışı)
+CHECK_IGNORE = {".DS_Store", "__pycache__", ".pyc", ".gitkeep", ".git"}
+
+
+def _scan_template_files(template_base_dir, prefix=""):
+    """
+    Template dizinini tarayarak beklenen dosya/dizin listesini döner.
+    Returns: list of (relative_path, type) tuples
+    """
+    items = []
+    if not os.path.exists(template_base_dir):
+        return items
+
+    for entry in sorted(os.listdir(template_base_dir)):
+        if entry in CHECK_IGNORE or entry.endswith(".pyc"):
+            continue
+        full = os.path.join(template_base_dir, entry)
+        rel = os.path.join(prefix, entry) if prefix else entry
+
+        if os.path.isdir(full):
+            items.append((rel, "dir"))
+            items.extend(_scan_template_files(full, rel))
+        else:
+            items.append((rel, "file"))
+
+    return items
+
+
+def _classify_path(rel_path):
+    """Bir dosya yolunun hangi kontrol kategorisine ait olduğunu belirler."""
+    parts = rel_path.split(os.sep)
+
+    if len(parts) >= 2 and parts[0] == ".agent":
+        second = parts[1]
+        category_map = {
+            "rules": ("📜", "Kural Dosyaları"),
+            "config": ("⚙️", "Konfigürasyon"),
+            "scripts": ("🐍", "Script Dosyaları"),
+            "skills": ("🎓", "Skill Dosyaları"),
+            "workflows": ("🔄", "Workflow Dosyaları"),
+            "hooks": ("🪝", "Git Hook Kaynakları"),
+            "templates": ("📋", "Agent Şablonları"),
+            "state": ("💾", "Durum Dizinleri"),
+            "logs": ("📝", "Log Dizinleri"),
+            "cache": ("🗄️", "Cache Dizinleri"),
+            "backups": ("💼", "Backup Dizinleri"),
+            "docs": ("📄", "Agent Docs"),
+        }
+        if second in category_map:
+            return category_map[second]
+        return ("📁", "Sistem Dizinleri (.agent/)")
+
+    if parts[0] == "docs":
+        if len(parts) >= 2 and parts[1] == "templates":
+            return ("📝", "Doküman Şablonları (docs/templates/)")
+        if len(parts) >= 2 and parts[1] == "reports":
+            return ("📊", "Rapor Dizini (docs/reports/)")
+        return ("📚", "SSOT & Dokümanlar")
+
+    if parts[0] == "contracts":
+        return ("📑", "Contract Dosyaları")
+
+    return ("📁", "Diğer")
+
+
+def _fix_command_for(rel_path):
+    """Eksik dosya/dizin için uygun düzeltme komutunu döner."""
+    # Ana dizinler eksikse → init
+    if rel_path in (".agent", "docs", "contracts"):
+        return "antigravity init"
+
+    parts = rel_path.split(os.sep)
+
+    # .agent/ altındaki sistem klasörleri → update ile gelir
+    if parts[0] == ".agent" and len(parts) >= 2:
+        second = parts[1]
+        if second in SYSTEM_FOLDERS:
+            return "antigravity update"
+        # state/logs/cache/backups → update ile oluşturulur
+        if second in PRESERVED_FOLDERS:
+            return "antigravity update"
+        return "antigravity update"
+
+    # docs/ SSOT dosyaları
+    if parts[0] == "docs":
+        if len(parts) == 2 and parts[1] in SSOT_DOC_FILES:
+            return "antigravity init"
+        return "antigravity update"
+
+    # contracts/
+    if parts[0] == "contracts":
+        return "antigravity init"
+
+    return "antigravity init"
+
+
 def check_project():
-    """health_check.py scriptini çalıştırır."""
-    print("🔍 AgnosticAgent Kurallar Denetimi başlatılıyor...")
+    """
+    Projenin tüm dosya/dizin yapısını A'dan Z'ye kontrol eder.
+    Template dizininden beklenen dosya listesini dinamik olarak okur,
+    proje diziniyle karşılaştırır, eksikleri kategorize eder ve
+    düzeltme komutu önerir.
+    """
+    print(f"🔍 AgnosticAgent v{VERSION} — Kapsamlı Sistem Kontrolü")
+    print("═" * 55)
 
-    # Önce projenin kendi .agent/scripts/ dizininden dene
+    templates_dir = get_templates_dir()
     target_dir = os.getcwd()
-    local_script = os.path.join(target_dir, ".agent", "scripts", "core", "health_check.py")
 
-    if os.path.exists(local_script):
-        subprocess.run([sys.executable, local_script])
-        return
+    # Template doğrulama
+    if not os.path.exists(templates_dir):
+        print("❌ HATA: Paket template dosyaları bulunamadı!")
+        print("   Lütfen paketi yeniden kurun:")
+        print("   pip3 install git+https://github.com/st-devl/AgnosticAgent.git --upgrade --force-reinstall")
+        sys.exit(1)
 
-    # Fallback: paketin kendi core/ dizininden
-    core_dir = get_core_dir()
-    health_check_script = os.path.join(core_dir, "core", "health_check.py")
+    # ── Beklenen dosya/dizin listesini template'ten oluştur ──
+    expected_items = []
 
-    if os.path.exists(health_check_script):
-        subprocess.run([sys.executable, health_check_script])
+    # 1) .agent/ (template/agent → .agent)
+    agent_template = os.path.join(templates_dir, "agent")
+    if os.path.exists(agent_template):
+        expected_items.append((".agent", "dir"))
+        for rel, typ in _scan_template_files(agent_template):
+            expected_items.append((os.path.join(".agent", rel), typ))
+
+    # 2) docs/ (template/docs → docs)
+    docs_template = os.path.join(templates_dir, "docs")
+    if os.path.exists(docs_template):
+        expected_items.append(("docs", "dir"))
+        for rel, typ in _scan_template_files(docs_template):
+            expected_items.append((os.path.join("docs", rel), typ))
+
+    # 3) contracts/ (template/contracts → contracts)
+    contracts_template = os.path.join(templates_dir, "contracts")
+    if os.path.exists(contracts_template):
+        expected_items.append(("contracts", "dir"))
+        for rel, typ in _scan_template_files(contracts_template):
+            expected_items.append((os.path.join("contracts", rel), typ))
+
+    # ── Proje diziniyle karşılaştır ──
+    found = []
+    missing = []
+    warnings = []
+
+    for rel_path, item_type in expected_items:
+        full_path = os.path.join(target_dir, rel_path)
+        exists = os.path.exists(full_path)
+
+        if exists:
+            if item_type == "file" and os.path.getsize(full_path) == 0:
+                # Boş dosya uyarısı (ama .gitkeep zaten ignore ediliyor)
+                warnings.append((rel_path, "Dosya boş"))
+            found.append(rel_path)
+        else:
+            missing.append(rel_path)
+
+    # ── Git hook kontrolü (ayrı) ──
+    git_hook_ok = False
+    git_dir = os.path.join(target_dir, ".git")
+    if os.path.exists(git_dir):
+        pre_commit = os.path.join(git_dir, "hooks", "pre-commit")
+        if os.path.exists(pre_commit):
+            found.append(".git/hooks/pre-commit")
+            git_hook_ok = True
+        else:
+            missing.append(".git/hooks/pre-commit")
+
+    # ── Sonuçları kategorize ederek yazdır ──
+    printed_categories = set()
+
+    # Önce bulunanları kategorize et
+    all_items_by_category = {}
+    for rel_path in found:
+        icon, cat = _classify_path(rel_path)
+        key = (icon, cat)
+        if key not in all_items_by_category:
+            all_items_by_category[key] = {"found": [], "missing": []}
+        all_items_by_category[key]["found"].append(rel_path)
+
+    for rel_path in missing:
+        icon, cat = _classify_path(rel_path)
+        key = (icon, cat)
+        if key not in all_items_by_category:
+            all_items_by_category[key] = {"found": [], "missing": []}
+        all_items_by_category[key]["missing"].append(rel_path)
+
+    # Kategorileri sırayla yazdır
+    category_order = [
+        ("📁", "Ana Dizin Yapısı"),
+        ("📁", "Sistem Dizinleri (.agent/)"),
+        ("⚙️", "Konfigürasyon"),
+        ("📜", "Kural Dosyaları"),
+        ("🐍", "Script Dosyaları"),
+        ("🎓", "Skill Dosyaları"),
+        ("🔄", "Workflow Dosyaları"),
+        ("🪝", "Git Hook Kaynakları"),
+        ("📋", "Agent Şablonları"),
+        ("💾", "Durum Dizinleri"),
+        ("📝", "Log Dizinleri"),
+        ("🗄️", "Cache Dizinleri"),
+        ("💼", "Backup Dizinleri"),
+        ("📄", "Agent Docs"),
+        ("📚", "SSOT & Dokümanlar"),
+        ("📝", "Doküman Şablonları (docs/templates/)"),
+        ("📊", "Rapor Dizini (docs/reports/)"),
+        ("📑", "Contract Dosyaları"),
+    ]
+
+    # Ana dizin yapısını özel olarak göster
+    print(f"\n📁 Ana Dizin Yapısı")
+    for base_dir in [".agent", "docs", "contracts"]:
+        full = os.path.join(target_dir, base_dir)
+        if os.path.exists(full):
+            print(f"  ✅ {base_dir}/")
+        else:
+            cmd = _fix_command_for(base_dir)
+            print(f"  ❌ {base_dir}/{'':>30s} → {cmd}")
+
+    # Diğer kategorileri göster
+    for icon, cat_name in category_order:
+        key = (icon, cat_name)
+        if key not in all_items_by_category:
+            continue
+        if cat_name == "Ana Dizin Yapısı":
+            continue  # Zaten yukarıda gösterdik
+
+        data = all_items_by_category[key]
+        found_count = len(data["found"])
+        missing_count = len(data["missing"])
+        total = found_count + missing_count
+
+        if total == 0:
+            continue
+
+        if missing_count == 0:
+            print(f"\n{icon} {cat_name} ({found_count}/{total})")
+            print(f"  ✅ Tümü mevcut")
+        else:
+            print(f"\n{icon} {cat_name} ({found_count}/{total})")
+            # Sadece eksikleri detaylı göster
+            for m in data["missing"]:
+                cmd = _fix_command_for(m)
+                # Kısa yol göster
+                display_path = m
+                print(f"  ❌ {display_path:<45s} → {cmd}")
+            if found_count > 0:
+                print(f"  ✅ {found_count} dosya/dizin mevcut")
+
+    # Git hook özel satırı
+    if os.path.exists(git_dir):
+        print(f"\n🪝 Git Hook'ları (.git/hooks/)")
+        if git_hook_ok:
+            print(f"  ✅ pre-commit hook kurulu")
+        else:
+            print(f"  ❌ pre-commit hook eksik{'':>20s} → antigravity update")
     else:
-        print("❌ Motor core başlatılamadı: health_check.py bulunamadı.")
-        print("   Lütfen 'antigravity init' ile kurulum yapın.")
+        print(f"\n🪝 Git Hook'ları")
+        print(f"  ⚠️  Bu dizin bir git reposu değil (git hook kontrolü atlandı)")
+
+    # Uyarılar
+    if warnings:
+        print(f"\n⚠️  Uyarılar")
+        for path, msg in warnings:
+            print(f"  ⚠️  {path}: {msg}")
+
+    # ── Sağlık skoru ve özet ──
+    total_expected = len(expected_items)
+    total_found = len(found)
+    total_missing = len(missing)
+    score = int((total_found / total_expected) * 100) if total_expected > 0 else 0
+
+    print(f"\n{'═' * 55}")
+    print(f"📊 Sistem Sağlık Skoru: {score}/100")
+    print()
+    print(f"   ✅ Mevcut:  {total_found} dosya/dizin")
+    print(f"   ❌ Eksik:   {total_missing} dosya/dizin")
+    if warnings:
+        print(f"   ⚠️  Uyarı:   {len(warnings)}")
+
+    if total_missing == 0 and not warnings:
+        print(f"\n🎉 Sistem 100% sağlıklı! Tüm dosyalar eksiksiz.")
+    elif total_missing > 0:
+        # Düzeltme önerileri
+        fix_commands = {}
+        for m in missing:
+            cmd = _fix_command_for(m)
+            if cmd not in fix_commands:
+                fix_commands[cmd] = 0
+            fix_commands[cmd] += 1
+
+        print(f"\n🔧 Düzeltme Önerileri:")
+        idx = 1
+        for cmd, count in fix_commands.items():
+            print(f"   {idx}. {cmd:<25s} → {count} eksik dosyayı geri yükler")
+            idx += 1
 
 
 # ═══════════════════════════════════════════════════════════════════

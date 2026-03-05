@@ -120,4 +120,4 @@ Thumbs.db
 *.cache
 *.pid
 *.seed
-*.pid.lock
+*.pid.lock*.egg-info/
