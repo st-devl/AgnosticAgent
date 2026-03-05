@@ -29,7 +29,7 @@ Bu template, her yeni projede ajan-tabanlı geliştirme altyapısını sıfırda
 Öncelikle Antigravity motorunu terminalinize global bir CLI aracı (Python paketi) olarak kurmalısınız:
 
 ```bash
-pip install git+https://github.com/st-devl/AgnosticAgent.git
+pip3 install "git+https://github.com/st-devl/AgnosticAgent.git#subdirectory=AgnosticAgent" --upgrade
 ```
 *Bu komut, `antigravity-agent` paketini ve `antigravity` komutunu sisteminize global olarak kurar. Artık terminalinizde herhangi bir dizindeyken `antigravity` komutunu çalıştırabilirsiniz.*
 
@@ -54,7 +54,7 @@ Eğer AgnosticAgent reposuna yeni özellikler eklenirse (eski projelerinizi yeni
 
 1. **Global Motoru Güncelle:**
    ```bash
-   pip install git+https://github.com/st-devl/AgnosticAgent.git --upgrade
+   pip3 install "git+https://github.com/st-devl/AgnosticAgent.git#subdirectory=AgnosticAgent" --upgrade
    ```
 
 2. **Proje Altyapısını Güncelle:**
