@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Pre-commit hook - Otomatik kalite kontrolü
+# Bu script her "git commit" öncesi çalışır
+
+set -e
+
+AGENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PROJECT_ROOT="$(cd "$AGENT_DIR/.." && pwd)"
+
+echo "🔍 Pre-commit checks running..."
+
+# 1. Secret Scanner (BLOCKER)
+echo "   → Checking for secrets..."
+if python3 "$AGENT_DIR/skills/enterprise-security/scripts/secret_scanner.py" "$PROJECT_ROOT" --dry-run > /dev/null 2>&1; then
+    echo "   ✅ No secrets found"
+else
+    echo "   ❌ BLOCKED: Secrets detected!"
+    python3 "$AGENT_DIR/skills/enterprise-security/scripts/secret_scanner.py" "$PROJECT_ROOT" --dry-run
+    exit 1
+fi
+
+# 2. Complexity Checker (WARNING)
+echo "   → Checking code complexity..."
+python3 "$AGENT_DIR/scripts/core/complexity_checker.py" "$PROJECT_ROOT" || echo "   ⚠️  Complexity warnings (non-blocking)"
+
+# 3. Duplicate Detector (WARNING)
+echo "   → Checking for duplicates..."
+python3 "$AGENT_DIR/scripts/core/duplicate_detector.py" "$PROJECT_ROOT" || echo "   ⚠️  Duplicate warnings (non-blocking)"
+
+echo "✅ Pre-commit checks passed!"
+exit 0

@@ -1,0 +1,243 @@
+# Agent Configuration (Machine-Enforceable Rules)
+# This file is the YAML representation of agent rules for programmatic access.
+
+version: "1.0.0"
+
+# Authority Chain (Priority Order)
+authority:
+  chain:
+    - SYSTEM.md
+    - gatekeeper.md
+    - project_context.md
+  enforcement: "strict"
+
+# Gatekeeper Rules
+gatekeeper:
+  require_approval: true
+  approval_keywords:
+    - "evet"
+    - "yap"
+    - "onay"
+    - "devam"
+    - "tamam"
+    - "ok"
+    - "approved"
+  
+  controlled_tools:
+    - write_to_file
+    - replace_file_content
+    - multi_replace_file_content
+    - run_command  # only if mutating
+  
+  exempt_tools:
+    - view_file
+    - list_dir
+    - grep_search
+    - find_by_name
+    - read_url_content
+
+# Path Permissions
+paths:
+  allowed_write:
+    - "docs/*"
+    - "src/*"
+    - ".agent/logs/*"
+  
+  blocked_write:
+    - ".env"
+    - "*.pem"
+    - "*.key"
+    - "secrets/*"
+  
+  read_only:
+    - ".agent/rules/SYSTEM.md"  # Cannot be modified by agent
+
+# Command Restrictions
+commands:
+  blocked_patterns:
+    - "rm -rf"
+    - "DROP TABLE"
+    - "DELETE FROM"
+    - "curl"
+    - "wget"
+    - "> /dev/"
+  
+  require_confirmation:
+    - "npm install"
+    - "pip install"
+    - "docker"
+    - "git push"
+
+# SSOT Hierarchy & Policy (Consolidated)
+ssot:
+  priority:
+    1: "docs/tech_stack.md"
+    2: "docs/architecture.md"
+    3: "docs/prd.md"
+    4: "docs/memory.md"
+  conflict_resolution: "higher_priority_wins"
+  enforcers:
+    - ssot_validator.py
+  triggers:
+    - "/ultrathink"
+
+# Logging Requirements
+logging:
+  required_actions:
+    - write_file
+    - delete_file
+    - run_command
+    - workflow_start
+    - workflow_end
+    - approval_granted
+    - approval_denied
+    - error
+  
+  log_directory: ".agent/logs"
+  retention_days: 90
+
+# Role-Based Access (Foundation)
+# Role-Based Access (Active)
+# Enforced by gatekeeper_check.py
+roles:
+  admin:
+    can_modify_rules: true
+    can_run_all_workflows: true
+  
+  developer:
+    can_modify_rules: false
+    allowed_workflows:
+      - /start
+      - /plan
+      - /think
+    blocked_workflows:
+      - /ultrathink
+      - /security_audit
+  
+  viewer:
+    can_modify_rules: false
+    read_only: true
+
+# Skill Permissions (Centralized Authority)
+skills:
+  debugging:
+    allowed_tools: ["read", "glob", "grep"]
+    description: "Hata analizi için okuma"
+  code-review:
+    allowed_tools: ["read", "glob", "grep"]
+    description: "Kod incelemesi için okuma"
+  performance:
+    allowed_tools: ["read", "glob", "grep", "edit", "write"]
+    description: "Performans analizi ve optimizasyon"
+  database-architecture:
+    allowed_tools: ["read", "glob", "grep", "edit"]
+    description: "DB şema ve migration düzenleme"
+  enterprise-security:
+    allowed_tools: ["read", "glob", "grep"]
+    description: "Güvenlik taraması"
+  component-architecture:
+    allowed_tools: ["read", "glob", "grep", "edit", "write"]
+    description: "Component oluşturma"
+  tdd-workflow:
+    allowed_tools: ["read", "glob", "grep", "edit", "write", "bash"]
+    description: "Test yazma ve çalıştırma"
+  multi-tenancy:
+    allowed_tools: ["read", "glob", "grep", "edit"]
+    description: "Tenant yapısı yönetimi"
+  payment-systems:
+    allowed_tools: ["read", "glob", "grep"]
+    description: "Ödeme sistemi analizi"
+  localization:
+    allowed_tools: ["read", "glob", "grep", "edit"]
+    description: "Çeviri ve i18n yönetimi"
+  engineering-guardrails:
+    allowed_tools: ["read", "glob", "grep"]
+    description: "Yazılım mimarisi ve temiz kod koruması"
+  fullstack-integration:
+    allowed_tools: ["read", "glob", "grep", "edit", "write"]
+    description: "Backend ↔ Frontend entegrasyon ve kontrat yönetimi"
+
+# Workflow Mappings (replaces orchestrator.md)
+workflows:
+  mappings:
+    - keywords: ["ultrathink", "analiz et", "deep analysis"]
+      workflow: "/ultrathink"
+    - keywords: ["güvenlik", "security", "audit"]
+      workflow: "/security_audit"
+    - keywords: ["db", "database", "migration"]
+      workflow: "/db_audit"
+    - keywords: ["mimari", "architecture", "refactor"]
+      workflow: "/architecture_check"
+    - keywords: ["bug", "hata", "çalışmıyor"]
+      workflow: "/deep_bug_hunt"
+    - keywords: ["scale", "horizontal", "load"]
+      workflow: "/scalability_check"
+    - keywords: ["plan", "roadmap", "çoklu görev"]
+      workflow: "/plan"
+    - keywords: ["yeni proje", "start", "init", "proje oluştur"]
+      workflow: "/start"
+    - keywords: ["düşün", "think", "analiz"]
+      workflow: "/think"
+    - keywords: ["code", "logic", "refactor", "logic", "architecture", "backend", "frontend", "schema"]
+      skill: "engineering-guardrails"
+
+# ============================================
+# CONSOLIDATED POLICIES (previously in .agent/policies/)
+# ============================================
+
+# Quality Policy
+quality:
+  thresholds:
+    max_function_lines: 50
+    max_file_lines: 500
+    max_nesting_depth: 4
+    min_duplicate_lines: 5
+  enforcers:
+    - complexity_checker.py
+    - duplicate_detector.py
+
+# Security Policy
+security:
+  blocked_secrets:
+    - "API_KEY"
+    - "SECRET"
+    - "PASSWORD"
+    - "PRIVATE_KEY"
+  enforcers:
+    - secret_scanner.py
+    - gatekeeper_check.py
+  actions:
+    on_secret_found:
+      severity: critical
+      block: true
+    on_dangerous_command:
+      severity: critical
+      block: true
+
+# Roadmap Policy
+roadmap:
+  sources:
+    - "task.md"
+    - "docs/task.md"
+    - ".agent/state/progress.json"
+  enforcers:
+    - drift_detector.py
+    - memory_controller.py
+  actions:
+    on_drift:
+      severity: warning
+      block: false
+
+# Artifact Policy
+artifact:
+  retention:
+    max_age_days: 30
+    max_size_mb: 100
+  versioning:
+    max_versions: 5
+    track_files:
+      - "implementation_plan.md"
+      - "task.md"
+      - "walkthrough.md"
+
+# SSOT Policy → Consolidated into ssot: block above (line 72)

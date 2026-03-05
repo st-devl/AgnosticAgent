@@ -1,0 +1,6 @@
+recursive-include antigravity_agent *.md
+recursive-include antigravity_agent *.yaml
+recursive-include antigravity_agent *.sh
+recursive-include antigravity_agent *.json
+recursive-include antigravity_agent *.jsonl
+recursive-include antigravity_agent/templates *

@@ -1,0 +1,243 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "contract-schema.json",
+    "title": "API Contract Schema",
+    "description": "API kontrat dosyalarının şeması (contract.json için)",
+    "type": "object",
+    "required": [
+        "operation",
+        "version",
+        "description",
+        "input",
+        "output",
+        "metadata"
+    ],
+    "properties": {
+        "operation": {
+            "type": "string",
+            "pattern": "^[a-z]+(_[a-z]+)*$",
+            "description": "Operasyon adı (snake_case)"
+        },
+        "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "description": "Kontrat versiyonu (semver)"
+        },
+        "description": {
+            "type": "string",
+            "minLength": 10,
+            "description": "Operasyon açıklaması"
+        },
+        "input": {
+            "$ref": "#/definitions/input_schema"
+        },
+        "output": {
+            "$ref": "#/definitions/output_schema"
+        },
+        "metadata": {
+            "$ref": "#/definitions/metadata_schema"
+        }
+    },
+    "definitions": {
+        "input_schema": {
+            "type": "object",
+            "required": [
+                "fields"
+            ],
+            "properties": {
+                "fields": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/field_definition"
+                    }
+                }
+            }
+        },
+        "output_schema": {
+            "type": "object",
+            "required": [
+                "success"
+            ],
+            "properties": {
+                "success": {
+                    "type": "object",
+                    "required": [
+                        "type"
+                    ],
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "enum": [
+                                "object",
+                                "array"
+                            ]
+                        },
+                        "schema": {
+                            "type": "object"
+                        },
+                        "description": {
+                            "type": "string"
+                        },
+                        "example": {}
+                    }
+                },
+                "errors": {
+                    "type": "object",
+                    "description": "Hata tanımları (error-handling.md referansı)"
+                }
+            }
+        },
+        "metadata_schema": {
+            "type": "object",
+            "required": [
+                "auth_required"
+            ],
+            "properties": {
+                "auth_required": {
+                    "type": "boolean",
+                    "description": "Kimlik doğrulama gerekli mi?"
+                },
+                "permissions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Gerekli yetkiler"
+                },
+                "rate_limit": {
+                    "type": "string",
+                    "pattern": "^\\d+/(second|minute|hour|day)$",
+                    "description": "Rate limit (örn: 100/hour)"
+                },
+                "idempotent": {
+                    "type": "boolean",
+                    "description": "İdempotent mi? (POST/PUT/PATCH için zorunlu)"
+                },
+                "cacheable": {
+                    "type": "boolean",
+                    "description": "Cache edilebilir mi? (GET için zorunlu)"
+                },
+                "cache_duration": {
+                    "type": "string",
+                    "description": "Cache süresi (örn: 60s, 5m, 1h)"
+                },
+                "http": {
+                    "type": "object",
+                    "properties": {
+                        "method": {
+                            "type": "string",
+                            "enum": [
+                                "GET",
+                                "POST",
+                                "PUT",
+                                "PATCH",
+                                "DELETE"
+                            ]
+                        },
+                        "path": {
+                            "type": "string",
+                            "pattern": "^/api/v\\d+/"
+                        },
+                        "headers": {
+                            "type": "object",
+                            "properties": {
+                                "required": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "optional": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "field_definition": {
+            "type": "object",
+            "required": [
+                "name",
+                "type",
+                "required"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "pattern": "^[a-z]+(_[a-z]+)*$",
+                    "description": "Field adı (snake_case)"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "string",
+                        "number",
+                        "boolean",
+                        "object",
+                        "array",
+                        "null"
+                    ],
+                    "description": "Field tipi"
+                },
+                "required": {
+                    "type": "boolean",
+                    "description": "Zorunlu mu?"
+                },
+                "validation": {
+                    "type": "object",
+                    "properties": {
+                        "rules": {
+                            "type": "object",
+                            "properties": {
+                                "min": {
+                                    "type": "number"
+                                },
+                                "max": {
+                                    "type": "number"
+                                },
+                                "min_length": {
+                                    "type": "integer"
+                                },
+                                "max_length": {
+                                    "type": "integer"
+                                },
+                                "pattern": {
+                                    "type": "string"
+                                },
+                                "enum": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "integer": {
+                                    "type": "boolean"
+                                },
+                                "item_type": {
+                                    "type": "string"
+                                },
+                                "max_items": {
+                                    "type": "integer"
+                                }
+                            }
+                        },
+                        "error_message": {
+                            "type": "string",
+                            "description": "Kullanıcı dostu hata mesajı"
+                        }
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "example": {},
+                "default": {}
+            }
+        }
+    }
+}
