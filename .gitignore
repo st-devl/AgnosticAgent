@@ -121,3 +121,15 @@ Thumbs.db
 *.pid
 *.seed
 *.pid.lock*.egg-info/
+
+# Root .agent system folders (copies of template/.agent/, deployed via antigravity init)
+.agent/config/
+.agent/hooks/
+.agent/rules/
+.agent/scripts/
+.agent/skills/
+.agent/workflows/
+.agent/backups/
+.agent/cache/
+.agent/templates/
+.agent/docs/
