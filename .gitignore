@@ -133,3 +133,6 @@ Thumbs.db
 .agent/cache/
 .agent/templates/
 .agent/docs/
+
+# Python build artifacts
+*.egg-info/
